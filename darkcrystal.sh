@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This script managed by Puppet, in the ElasticSearch module
-# credits: https://gist.github.com/nherment/1939828
+# credits: http://tech.superhappykittymeow.com/?p=296
 
 # It is highly recommended that you diable the ability to
 # accidentally delete all of your indices, should one of
