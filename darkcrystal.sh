@@ -197,7 +197,7 @@ else
     do
         indexdate=`echo $indexname | awk -F- '{print $2}'`
         indexyear=`echo $indexdate | awk -F\. '{print $1}'`
-        indexmonth=`echo $indexdate | awk -F\. '{print $2}'}`
+        indexmonth=`echo $indexdate | awk -F\. '{print $2}'`
         s3target="$S3ROOT/$indexyear/$indexmonth"
         restorescript="$indexname-restore.sh"
 
