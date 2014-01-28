@@ -89,7 +89,7 @@ fi
 ALLINDICES=( `curl -s localhost:9200/_status?pretty=true |grep index |grep log |sort |uniq |awk -F\" '{print $4}'` )
 
 # Find the oldest index we want to keep:
-now=`date`;
+now=`date`
 KEEPUNTIL=`date --date="$now-$KEEPDAYS" "+$INDEXPREFIX-%Y.%m.%d"`
 echo "You've elected to keep indices up until $KEEPUNTIL."
 
@@ -107,7 +107,7 @@ fi
 
 # Loop from the beginning (oldest) of the index names array until we reach KEEPUNTIL's array index.
 # Back up all indices older than KEEPUNTIL
-for indexnumber in {0..$arrayindex};
+for (( indexnumber=0; indexnumber <= $arrayindex; indexnumber++ ))
 do
     # Set up variables:
     indexname=${ALLINDICES[$indexnumber]} # This had better match the index name in ES!
