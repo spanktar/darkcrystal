@@ -8,7 +8,7 @@
 # these variables get borked.
 # Set 'action.disable_delete_all_indices' to be true!
 
-KEEPDAYS="90d"
+KEEPDAYS="90days"
 INDEXPREFIX="logstash"
 DATAROOT="/usr/local/elasticsearch"
 INDEXDIRS=("data1", "data2") # Some folks have multiple data locations
@@ -89,7 +89,9 @@ fi
 ALLINDICES=( `curl -s localhost:9200/_status?pretty=true |grep index |grep log |sort |uniq |awk -F\" '{print $4}'` )
 
 # Find the oldest index we want to keep:
-KEEPUNTIL=`date -v -$KEEPDAYS "+$INDEXPREFIX-%Y.%m.%d"`
+now=`date`;
+KEEPUNTIL=`date --date="$now-$KEEPDAYS" "+$INDEXPREFIX-%Y.%m.%d"`
+echo "You've elected to keep indices up until $KEEPUNTIL."
 
 # Start an array of all indices for use later
 declare -a INDICES=($KEEPUNTIL)
