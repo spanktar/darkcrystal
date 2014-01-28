@@ -8,7 +8,7 @@
 # these variables get borked.
 # Set 'action.disable_delete_all_indices' to be true!
 
-KEEPDAYS="90days"
+KEEPDAYS="60days"
 INDEXPREFIX="logstash"
 DATAROOT="/usr/local/elasticsearch"
 INDEXDIRS=("data1", "data2") # Some folks have multiple data locations
