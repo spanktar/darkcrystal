@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # This script managed by Puppet, in the ElasticSearch module
-# credits: http://tech.superhappykittymeow.com/?p=296
+# Credits: http://tech.superhappykittymeow.com/?p=296
 
 # It is highly recommended that you diable the ability to
 # accidentally delete all of your indices, should one of
@@ -15,6 +15,7 @@ INDEXDIRS=("data1" "data2") # Some folks have multiple data locations
 BACKUPCMD="/usr/local/backupTools/s3cmd --config=/usr/local/backupTools/s3cfg put"
 BACKUPDIR="/mnt/es-backups"
 S3ROOT="s3://backups/elasticsearch"
+
 DRYRUN=false
 NOS3=false
 WEIRDOS=true
@@ -31,7 +32,6 @@ while test $# -gt 0; do
             echo "-d, --dryrun              don't really do anything"
             echo "-s, --skips3              don't send anything to S3"
             echo "-w, --weirdos             leave weirdos alone"
-
             exit 0
             ;;
         -d|--dryrun)
@@ -130,13 +130,14 @@ do
         echo
         echo "curl -XGET -o /tmp/mapping \"http://localhost:9200/$indexname/_mapping?pretty=true\" > /dev/null 2>&1"
         echo "sed -i '1,2d' /tmp/mapping #strip the first two lines of the metadata"
-        echo "echo '{\"settings\":{\"number_of_shards\":5,\"number_of_replicas\":2},\"mappings\":{' > /tmp/mappost"
+        echo "echo '{\"settings\": {\"number_of_shards\": 5, \"number_of_replicas\": 2}, \"mappings\": {' > /tmp/mappost"
         echo "cat /tmp/mapping >> /tmp/mappost"
     else
         curl -XGET -o /tmp/mapping "http://localhost:9200/$indexname/_mapping?pretty=true" > /dev/null 2>&1
-        sed -i '1,2d' /tmp/mapping #strip the first two lines of the metadata
-        echo '{"settings":{"number_of_shards":5,"number_of_replicas":2},"mappings":{' > /tmp/mappost
+        #strip the first two lines of the metadata
+        sed -i '1,2d' /tmp/mapping
         # Prepend hardcoded settings metadata to index-specific metadata
+        echo '{"settings": {"number_of_shards": 5, "number_of_replicas": 2}, "mappings": {' > /tmp/mappost
         cat /tmp/mapping >> /tmp/mappost
     fi
     echo "DONE!"
@@ -184,6 +185,7 @@ do
         echo "DONE!"
 
         # Restart ES to allow it to open the new dir and file data.
+        # NOTE: You might want to handle this differently to avoid rebalancing.
         echo -n "Restarting Elasticsearch... "
         service elasticsearch restart
         echo "DONE!"
