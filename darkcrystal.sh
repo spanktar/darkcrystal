@@ -14,7 +14,7 @@ DATAROOT="/usr/local/elasticsearch"
 INDEXDIRS=("data1" "data2") # Some folks have multiple data locations
 BACKUPCMD="/usr/local/backupTools/s3cmd --config=/usr/local/backupTools/s3cfg put"
 BACKUPDIR="/mnt/es-backups"
-S3ROOT="s3://backups/elasticsearch/"
+S3ROOT="s3://backups/elasticsearch"
 DRYRUN=false
 NOS3=false
 WEIRDOS=true
