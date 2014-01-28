@@ -107,7 +107,7 @@ fi
 
 # Loop from the beginning (oldest) of the index names array until we reach KEEPUNTIL's array index.
 # Back up all indices older than KEEPUNTIL
-for indexnumber in {0..$arrayindex}
+for indexnumber in {0..$arrayindex};
 do
     # Set up variables:
     indexname=${ALLINDICES[$indexnumber]} # This had better match the index name in ES!
@@ -116,9 +116,10 @@ do
     # Create mapping file with index settings. This metadata is required by ES to use index file data.
     echo -n "Backing up metadata... "
     if $DRYRUN; then
+        echo
         echo "curl -XGET -o /tmp/mapping \"http://localhost:9200/$indexname/_mapping?pretty=true\" > /dev/null 2>&1"
         echo "sed -i '1,2d' /tmp/mapping #strip the first two lines of the metadata"
-        echo "'{\"settings\":{\"number_of_shards\":5,\"number_of_replicas\":2},\"mappings\":{' >> /tmp/mappost"
+        echo "echo '{\"settings\":{\"number_of_shards\":5,\"number_of_replicas\":2},\"mappings\":{' >> /tmp/mappost"
         echo "cat /tmp/mapping >> /tmp/mappost"
     else
         curl -XGET -o /tmp/mapping "http://localhost:9200/$indexname/_mapping?pretty=true" > /dev/null 2>&1
@@ -181,7 +182,7 @@ do
         echo -n "Restarting Elasticsearch... "
         service elasticsearch restart
         echo "DONE!"
-        EOF
+EOF
         echo "DONE!" # Restore script done.
     fi
 done
@@ -192,7 +193,7 @@ else
     # Push both index tarball and restore script to S3
     echo "Saving to S3 (this may take some time)... "
 
-    for indexname in INDICES
+    for indexname in "${INDICES[@]}"
     do
         indexdate=`echo $indexname | awk -F- '{print $2}'`
         indexyear=`echo $indexdate | awk -F\. '{print $1}'`
