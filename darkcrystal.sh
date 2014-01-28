@@ -118,22 +118,24 @@ for (( indexnumber=0; indexnumber <= $arrayindex; indexnumber++ ))
 do
     # Set up variables:
     indexname=${ALLINDICES[$indexnumber]} # This had better match the index name in ES!
+    echo "##################################################"
     echo "Working with index $indexname"
 
     INDICES=("${INDICES[@]}" $indexname)
 
     # Create mapping file with index settings. This metadata is required by ES to use index file data.
     echo -n "Backing up metadata... "
+
     if $DRYRUN; then
         echo
         echo "curl -XGET -o /tmp/mapping \"http://localhost:9200/$indexname/_mapping?pretty=true\" > /dev/null 2>&1"
         echo "sed -i '1,2d' /tmp/mapping #strip the first two lines of the metadata"
-        echo "echo '{\"settings\":{\"number_of_shards\":5,\"number_of_replicas\":2},\"mappings\":{' >> /tmp/mappost"
+        echo "echo '{\"settings\":{\"number_of_shards\":5,\"number_of_replicas\":2},\"mappings\":{' > /tmp/mappost"
         echo "cat /tmp/mapping >> /tmp/mappost"
     else
         curl -XGET -o /tmp/mapping "http://localhost:9200/$indexname/_mapping?pretty=true" > /dev/null 2>&1
         sed -i '1,2d' /tmp/mapping #strip the first two lines of the metadata
-        echo '{"settings":{"number_of_shards":5,"number_of_replicas":2},"mappings":{' >> /tmp/mappost
+        echo '{"settings":{"number_of_shards":5,"number_of_replicas":2},"mappings":{' > /tmp/mappost
         # Prepend hardcoded settings metadata to index-specific metadata
         cat /tmp/mapping >> /tmp/mappost
     fi
