@@ -11,7 +11,7 @@
 KEEPDAYS="60days"
 INDEXPREFIX="logstash"
 DATAROOT="/usr/local/elasticsearch"
-INDEXDIRS=("data1", "data2") # Some folks have multiple data locations
+INDEXDIRS=("data1" "data2") # Some folks have multiple data locations
 BACKUPCMD="/usr/local/backupTools/s3cmd --config=/usr/local/backupTools/s3cfg put"
 BACKUPDIR="/mnt/es-backups/"
 S3ROOT="s3://backups/elasticsearch/"
@@ -105,6 +105,13 @@ else
     exit 1
 fi
 
+# Create backup directory
+if $DRYRUN; then
+    echo "mkdir -p $BACKUPDIR"
+else
+    mkdir -p $BACKUPDIR
+fi
+
 # Loop from the beginning (oldest) of the index names array until we reach KEEPUNTIL's array index.
 # Back up all indices older than KEEPUNTIL
 for (( indexnumber=0; indexnumber <= $arrayindex; indexnumber++ ))
@@ -112,6 +119,8 @@ do
     # Set up variables:
     indexname=${ALLINDICES[$indexnumber]} # This had better match the index name in ES!
     echo "Working with index $indexname"
+
+    INDICES=("${INDICES[@]}" $indexname)
 
     # Create mapping file with index settings. This metadata is required by ES to use index file data.
     echo -n "Backing up metadata... "
@@ -132,16 +141,11 @@ do
 
     # Now lets tar up our data files. These are huge, so lets be nice.
     echo "Archiving data files (this may take some time)... "
-    if $DRYRUN; then
-        echo "mkdir -p $BACKUPDIR"
-    else
-        mkdir -p $BACKUPDIR
-    fi
 
     for indexdir in $INDEXDIRS
     do
-        echo -n "$indexdir... "
         indexpath="$DATAROOT/$indexdir/logstash/nodes/0/indices/"
+        echo "Using data directory $indexpath... "
         cd $indexpath
         # Replace slashes with hypens
         indexdir=${indexdir//\//-}
@@ -153,13 +157,12 @@ do
         fi
         echo "DONE!"
     done
-    echo "DONE!"
 
     echo -n "Creating restore script for ... "
     # Time to create our restore script! Oh glob, scripts creating scripts, this never ends well...
     if $DRYRUN; then
         echo
-        echo " cat << EOF >> $BACKUPDIR/$indexname-restore.sh"
+        echo "cat << EOF >> $BACKUPDIR/$indexname-restore.sh"
     else
         cat << EOF >> $BACKUPDIR/$indexname-restore.sh
         #!/bin/bash
@@ -183,9 +186,11 @@ do
         service elasticsearch restart
         echo "DONE!"
 EOF
-        echo "DONE!" # Restore script done.
     fi
 done
+echo "DONE!" # Restore script done.
+echo "##################################################"
+echo
 
 if $NOS3; then
     echo "Upload to S3 declined, skipping..."
@@ -217,6 +222,7 @@ else
 
             echo -n "Saving index $indexfilename to $s3target... "
             if $DRYRUN; then
+                echo
                 echo "$BACKUPCMD $BACKUPDIR/$indexfilename $s3target/$indexfilename"
             else
                 $BACKUPCMD $BACKUPDIR/$indexfilename $s3target/$indexfilename
