@@ -160,7 +160,7 @@ do
         echo "DONE!"
     done
 
-    echo -n "Creating restore script for ... "
+    echo -n "Creating restore script for $indexname... "
     # Time to create our restore script! Oh glob, scripts creating scripts, this never ends well...
     if $DRYRUN; then
         echo
@@ -232,7 +232,7 @@ else
             echo "DONE!"
         done
     done
-    echo "DONE!"
+    echo "DONE uploading to S3!"
 fi
 
 # Cleanup tmp files.
