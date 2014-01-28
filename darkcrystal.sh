@@ -145,7 +145,7 @@ do
     for indexdir in $INDEXDIRS
     do
         indexpath="$DATAROOT/$indexdir/logstash/nodes/0/indices/"
-        echo "Using data directory $indexpath... "
+        echo -n "Using data directory $indexpath... "
         cd $indexpath
         # Replace slashes with hypens
         indexdir=${indexdir//\//-}
@@ -187,11 +187,11 @@ do
         echo "DONE!"
 EOF
     fi
-done
-echo "DONE!" # Restore script done.
 echo "##################################################"
 echo
+done
 
+echo
 if $NOS3; then
     echo "Upload to S3 declined, skipping..."
 else
